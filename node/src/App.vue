@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main class="gradient">
-      <CardCatalog />
+     <CardCatalog />
     </v-main>
   </v-app>
 </template>

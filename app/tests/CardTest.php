@@ -2,26 +2,17 @@
 
 namespace App\Tests;
 
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Card;
 use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class CardTest extends ApiTestCase
+class CardTest extends WebTestCase
 {
     use ReloadDatabaseTrait;
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testAddCardWithEmptyJson(): void
     {
@@ -29,131 +20,117 @@ class CardTest extends ApiTestCase
         $client->request('POST', 'api/cards', [
             'json' => [],
         ]);
-        self::assertJsonContains([
-            'violations' => [
-                [
-                    'propertyPath' => 'name',
-                    'message' => 'This value should not be blank.',
-                ],
-                [
-                    'propertyPath' => 'power',
-                    'message' => 'This value should not be blank.',
-                ]
-            ]
-        ]);
-        self::assertResponseStatusCodeSame(422);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'errors' => 'Request body is empty.',
+            'status' => 400,
+            'type' => 'about:blank',
+            'title' => 'Bad Request',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
+        self::assertResponseStatusCodeSame(400);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testAddCardWithMissingPower(): void
     {
         $client = self::createClient();
-        $client->request('POST', 'api/cards', [
-            'json' => [
-                'name' => 'Geralt'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Geralt'
         ]);
-        self::assertJsonContains([
-            'violations' => [
+        $client->request('POST', 'api/cards', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'errors' => [
                 [
-                    'propertyPath' => 'power',
-                    'message' => 'This value should not be blank.',
+                    'power' => 'This value should not be blank.'
                 ]
-            ]
-        ]);
-        self::assertResponseStatusCodeSame(422);
+            ],
+            'status' => 400,
+            'type' => 'validation_error',
+            'title' => 'There was a validation error.',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
+        self::assertResponseStatusCodeSame(400);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
-    public function testAddCardWithMissingName()
+    public function testAddCardWithMissingName(): void
     {
         $client = self::createClient();
-        $client->request('POST', 'api/cards', [
-            'json' => [
-                'power' => 1
-            ],
+        $data = $this->arrayToJson([
+            'power' => 1
         ]);
-        self::assertJsonContains([
-            'violations' => [
+        $client->request('POST', 'api/cards', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'errors' => [
                 [
-                    'propertyPath' => 'name',
-                    'message' => 'This value should not be blank.',
+                    'name' => 'This value should not be blank.'
                 ]
-            ]
-        ]);
-        self::assertResponseStatusCodeSame(422);
+            ],
+            'status' => 400,
+            'type' => 'validation_error',
+            'title' => 'There was a validation error.',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
+        self::assertResponseStatusCodeSame(400);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
-    public function testAddCard()
+    public function testAddCard(): void
     {
         $client = self::createClient();
-        $client->request('POST', 'api/cards', [
-            'json' => [
-                'power' => 1,
-                'name' => 'Geralt'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Geralt',
+            'power' => 1
         ]);
-        self::assertJsonContains([
+        $client->request('POST', 'api/cards', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
             'id' => 1,
             'name' => 'Geralt',
             'power' => 1,
-        ]);
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(201);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testAddCardWithNameAlreadyTaken(): void
     {
         $client = self::createClient();
         $this->createCard();
-        $client->request('POST', 'api/cards', [
-            'json' => [
-                'power' => 1,
-                'name' => 'Geralt'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Geralt',
+            'power' => 1
         ]);
-        self::assertJsonContains([
-            'violations' => [
+        $client->request('POST', 'api/cards', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'errors' => [
                 [
-                    'propertyPath' => 'name',
-                    'message' => 'This value is already used.',
+                    'name' => 'This value is already used.'
                 ]
-            ]
-        ]);
-        self::assertResponseStatusCodeSame(422);
+            ],
+            'status' => 400,
+            'type' => 'validation_error',
+            'title' => 'There was a validation error.',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
+        self::assertResponseStatusCodeSame(400);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testCollectionReturnsThreeElements(): void
     {
@@ -168,162 +145,185 @@ class CardTest extends ApiTestCase
         }
         $em->flush();
         $client->request('GET', 'api/cards');
-        $content = $client->getResponse()->toArray();
-        $this->assertCount(3, $content['hydra:member']);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $this->assertCount(3, $body['items']);
+        self::assertResponseStatusCodeSame(200);
     }
 
+
     /**
-     * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
     public function testGetNonExistingCard(): void
     {
         $client = self::createClient();
         $client->request('GET', 'api/cards/1');
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'detail' => 'Cannot find card with id 1',
+            'status' => 404,
+            'type' => 'about:blank',
+            'title' => 'Not Found',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(404);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testGetExistingCard(): void
     {
         $client = self::createClient();
         $this->createCard();
         $client->request('GET', 'api/cards/1');
-        self::assertJsonContains([
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
             'id' => 1,
             'name' => 'Geralt',
             'power' => 1,
-        ]);
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(200);
     }
 
     /**
-     * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
     public function testDeleteNonExistingCard(): void
     {
         $client = self::createClient();
         $client->request('DELETE', 'api/cards/1');
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'detail' => 'Cannot find card with id 1',
+            'status' => 404,
+            'type' => 'about:blank',
+            'title' => 'Not Found',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(404);
     }
 
-    /**
-     * @throws TransportExceptionInterface
-     */
     public function testDeleteExistingCard(): void
     {
         $client = self::createClient();
         $this->createCard();
         $client->request('DELETE', 'api/cards/1');
+        $body = $client->getResponse()->getContent();
+        $expected = '';
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(204);
     }
 
     /**
-     * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
     public function testUpdateNonExistingCardName(): void
     {
         $client = self::createClient();
-        $client->request('PUT', 'api/cards/1', [
-            'json' => [
-                'name' => 'Ciri'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Geralt',
         ]);
+        $client->request('PUT', 'api/cards/1', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'detail' => 'Cannot find card with id 1',
+            'status' => 404,
+            'type' => 'about:blank',
+            'title' => 'Not Found',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(404);
     }
 
     /**
-     * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
-    public function testUpdateNonExistingCardPower()
+    public function testUpdateNonExistingCardPower(): void
     {
         $client = self::createClient();
-        $client->request('PUT', 'api/cards/1', [
-            'json' => [
-                'power' => 2
-            ],
+        $data = $this->arrayToJson([
+            'power' => 2,
         ]);
+        $client->request('PUT', 'api/cards/1', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            'detail' => 'Cannot find card with id 1',
+            'status' => 404,
+            'type' => 'about:blank',
+            'title' => 'Not Found',
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(404);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testUpdateExistingCardName(): void
     {
         $client = self::createClient();
         $this->createCard();
-        $client->request('PUT', 'api/cards/1', [
-            'json' => [
-                'name' => 'Ciri'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Ciri',
         ]);
-        self::assertJsonContains([
+        $client->request('PUT', 'api/cards/1', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
             'id' => 1,
-            'name' => 'Ciri'
-        ]);
+            'name' => 'Ciri',
+            'power' => 1,
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(200);
     }
 
-    /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
-     */
     public function testUpdateExistingCardPower(): void
     {
         $client = self::createClient();
         $this->createCard();
-        $client->request('PUT', 'api/cards/1', [
-            'json' => [
-                'power' => 2
-            ],
+        $data = $this->arrayToJson([
+            'power' => 2,
         ]);
-        self::assertJsonContains([
+        $client->request('PUT', 'api/cards/1', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
             'id' => 1,
-            'power' => 2
-        ]);
+            'name' => 'Geralt',
+            'power' => 2,
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
         self::assertResponseStatusCodeSame(200);
     }
 
     /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws ClientExceptionInterface
+     * @throws \JsonException
      */
     public function testUpdateCardNameToAlreadyExistingCardName(): void
     {
         $client = self::createClient();
         $this->createCard();
         $this->createCard('Ciri', 2);
-        $client->request('PUT', 'api/cards/2', [
-            'json' => [
-                'name' => 'Geralt'
-            ],
+        $data = $this->arrayToJson([
+            'name' => 'Geralt',
         ]);
-        self::assertJsonContains([
-            'violations' => [
+        $client->request('PUT', 'api/cards/2', [], [], [], $data);
+        $body = $this->jsonToArray($client->getResponse()->getContent());
+        $expected = [
+            "errors" => [
                 [
-                    'propertyPath' => 'name',
-                    'message' => 'This value is already used.',
+                    "name" => "This value is already used."
                 ]
-            ]
-        ]);
-        self::assertResponseStatusCodeSame(422);
+            ],
+            "status" => 400,
+            "type" => "validation_error",
+            "title" => "There was a validation error.",
+        ];
+        self::assertEqualsCanonicalizing($body, $expected);
+        self::assertResponseStatusCodeSame(400);
     }
+
 
     public function getEntityManager(): EntityManagerInterface
     {
@@ -342,5 +342,25 @@ class CardTest extends ApiTestCase
         return $card;
     }
 
+    /**
+     * @throws \JsonException
+     */
+    public function jsonToArray($json)
+    {
+        return json_decode(
+            $json,
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+    }
 
+    /**
+     * @throws \JsonException
+     */
+    public function arrayToJson(array $array)
+    {
+        return json_encode($array, JSON_THROW_ON_ERROR);
+    }
 }
+

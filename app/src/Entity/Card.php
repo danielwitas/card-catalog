@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CardRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ApiResource(attributes={"pagination_items_per_page"=3})
  * @ORM\Entity(repositoryClass=CardRepository::class)
  * @UniqueEntity("name")
  */
@@ -25,17 +23,15 @@ class Card
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
-     * @Assert\Type("string")
      */
-    private string $name;
+    private ?string $name;
 
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank()
-     * @Assert\Type("integer")
      * @Assert\Positive()
      */
-    private int $power;
+    private ?int $power;
 
     public function getId(): ?int
     {
@@ -47,7 +43,7 @@ class Card
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
 
@@ -59,7 +55,7 @@ class Card
         return $this->power;
     }
 
-    public function setPower(int $power): self
+    public function setPower(?int $power): self
     {
         $this->power = $power;
 

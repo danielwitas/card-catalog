@@ -157,8 +157,8 @@ export default {
           })
       this.loadingData = false;
       if (response?.status === 200) {
-        this.setTotalPages(response.data['hydra:totalItems'])
-        this.cards = response.data['hydra:member']
+        this.setTotalPages(response.data.totalItemCount)
+        this.cards = response.data.items
       }
     },
     async handleAddedCard(card) {
@@ -170,7 +170,7 @@ export default {
       if (this.cards.length === 3) {
         const response = await getCardsRequest(this.page)
         if (response?.status === 200) {
-          this.setTotalPages(response.data['hydra:totalItems'])
+          this.setTotalPages(response.data.totalItemCount)
         }
       }
     },

@@ -1,0 +1,293 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Card catalog API",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/api/cards": {
+      "get": {
+        "operationId": "getCardCollection",
+        "tags": [
+          "Card"
+        ],
+        "responses": {
+          "200": {
+            "description": "Card collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Card"
+                      }
+                    },
+                    "totalItemCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currentPageNumber": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "itemNumberPerPage": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieves the collection of Card resources.",
+        "description": "Retrieves the collection of Card resources.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The collection page number",
+            "required": false,
+            "deprecated": false,
+            "allowEmptyValue": true,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "style": "form",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false
+      },
+      "post": {
+        "operationId": "postCardCollection",
+        "tags": [
+          "Card"
+        ],
+        "responses": {
+          "201": {
+            "description": "Card resource created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            },
+            "links": {
+              "GetCardItem": {
+                "operationId": "getCardItem",
+                "parameters": {
+                  "id": "$response.body#/id"
+                },
+                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /api/cards/{id}`."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        },
+        "summary": "Creates a Card resource.",
+        "description": "Creates a Card resource.",
+        "parameters": [],
+        "requestBody": {
+          "description": "The new Card resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Card"
+              }
+            }
+          },
+          "required": true
+        },
+        "deprecated": false
+      },
+      "parameters": []
+    },
+    "/api/cards/{id}": {
+      "get": {
+        "operationId": "getCardItem",
+        "tags": [
+          "Card"
+        ],
+        "responses": {
+          "200": {
+            "description": "Card resource",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found"
+          }
+        },
+        "summary": "Retrieves a Card resource.",
+        "description": "Retrieves a Card resource.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Resource identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false
+      },
+      "put": {
+        "operationId": "putCardItem",
+        "tags": [
+          "Card"
+        ],
+        "responses": {
+          "200": {
+            "description": "Card resource updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            },
+            "links": {
+              "GetCardItem": {
+                "operationId": "getCardItem",
+                "parameters": {
+                  "id": "$response.body#/id"
+                },
+                "description": "The `id` value returned in the response can be used as the `id` parameter in `GET /api/cards/{id}`."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "404": {
+            "description": "Resource not found"
+          }
+        },
+        "summary": "Replaces the Card resource.",
+        "description": "Replaces the Card resource.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Resource identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "requestBody": {
+          "description": "The updated Card resource",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Card"
+              }
+            }
+          },
+          "required": true
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "operationId": "deleteCardItem",
+        "tags": [
+          "Card"
+        ],
+        "responses": {
+          "204": {
+            "description": "Card resource deleted"
+          },
+          "404": {
+            "description": "Resource not found"
+          }
+        },
+        "summary": "Removes the Card resource.",
+        "description": "Removes the Card resource.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Resource identifier",
+            "required": true,
+            "deprecated": false,
+            "allowEmptyValue": false,
+            "schema": {
+              "type": "string"
+            },
+            "style": "simple",
+            "explode": false,
+            "allowReserved": false
+          }
+        ],
+        "deprecated": false
+      },
+      "parameters": []
+    }
+  },
+  "components": {
+    "schemas": {
+      "Card": {
+        "type": "object",
+        "description": "",
+        "properties": {
+          "id": {
+            "readOnly": true,
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "power": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "power"
+        ]
+      }
+    },
+    "responses": {},
+    "parameters": {},
+    "examples": {},
+    "requestBodies": {},
+    "headers": {},
+    "securitySchemes": {}
+  },
+  "security": [],
+  "tags": []
+}

@@ -10,8 +10,7 @@ use Doctrine\Persistence\ObjectManager;
 class CardFixtures extends Fixture implements FixtureGroupInterface
 {
 
-
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $cards = [
             [
@@ -55,5 +54,4 @@ class CardFixtures extends Fixture implements FixtureGroupInterface
     {
         return ['card_fixtures'];
     }
-
 }
