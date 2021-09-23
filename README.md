@@ -24,6 +24,10 @@ git checkout no-api-platform
 ```
 sh install.sh
 ```
+## Build
+```
+docker-compose up
+```
 ### Runs tests
 ```
 docker-compose run --rm php74-service php vendor/bin/phpunit
@@ -44,7 +48,7 @@ See [http://localhost:8080/api/docs](http://localhost:8080/api/docs)
 ```
 ### Non API Platform version docs yaml
 ```
-/app/docs/docs.json
+/app/docs/docs.yaml
 ```
 
 ### Troubleshooting
