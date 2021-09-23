@@ -75,7 +75,7 @@ To create database schema manually for test envirnoment:
 docker-compose run --rm php74-service php bin/console doctrine:schema:update --force --env=test
 
 To run tests manually
-docker-compose run --rm php74-service php vendor/phpunit
+docker-compose run --rm php74-service php vendor/bin/phpunit
 
 If all fails. You can try to remove all unused containers, networks,
 images (both dangling and unreferenced), and optionally, volumes. Run:
